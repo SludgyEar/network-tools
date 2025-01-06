@@ -35,8 +35,11 @@ def escaneo_red(network):
             if state == 'up':
                 upDevices[host] = nm[host] # Se almacena toda información del host
                 protocols = nm[host].all_protocols()
-                for protocol in protocols:
-                    ports[host] = list(nm[host][protocol].keys())   # Puertos abiertos de un host individual
+                if protocols:
+                    for protocol in protocols:
+                        ports[host] = list(nm[host][protocol].keys())   # Puertos abiertos de un host individual
+                else:
+                    ports[host] = "Puertos Filtrados / Cerrados ..."
             else:
                 continue
         return upDevices, ports
