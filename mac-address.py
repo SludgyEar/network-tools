@@ -26,18 +26,24 @@ def escaneo_red(network):
     """
     nm = nmap.PortScanner()
     try:
-        nm.scan(hosts=network, arguments='-sP')   # Ping Scan
+        nm.scan(hosts=network, arguments='-sS')   # Escaneo de puertos
         upDevices = {}
+        ports = {}
+        protocols = []
         for host in nm.all_hosts():
             state = nm[host].state()
             if state == 'up':
                 upDevices[host] = nm[host] # Se almacena toda información del host
+                protocols = nm[host].all_protocols()
+                for protocol in protocols:
+                    ports[host] = list(nm[host][protocol].keys())   # Puertos abiertos de un host individual
             else:
                 continue
-        return upDevices
+        return upDevices, ports
     except Exception as e:
         print(f"Error al escanear la red. Inténtelo de nuevo. {e}")
-        return{}
+        return {},{}
+    
 
 def obtener_mac_address(upDevices):
     """"
@@ -58,12 +64,15 @@ def obtener_mac_address(upDevices):
 if __name__ == '__main__':
     args = parser.parse_args()
     network = args.network
-    upDevices = escaneo_red(network)
+    upDevices, ports = escaneo_red(network)
 
     if upDevices:
         mac_address = obtener_mac_address(upDevices)
         print("Dispositivos encontrados en la red: \n")
         for ip, mac in mac_address.items():
             print(f"IP: {ip} - MAC: {mac}")
+            if ports[ip]:
+                print("Este dispositivo tiene los siguientes puertos abiertos: ")
+                print(ports[ip])
     else:
         print("No se encontraron dispositivos en la red...")
