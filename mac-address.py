@@ -1,3 +1,9 @@
+"""
+    Script que realiza un escaneo de una red dada y obtiene las direcciones
+    MAC de los dispositivos.
+    Tienes que correr este script como root o usando "sudo" para obtener las direcciones
+    Mac."""
+
 import subprocess
 import argparse
 parser = argparse.ArgumentParser(description='Realiza un escaneo dada una red.')
@@ -14,6 +20,10 @@ except ImportError:
         print("Error al instalar la librería python-nmap")
 
 def escaneo_red(network):
+    """"
+    Se hace un escaneo dada una red y se obtiene la información de los dispositivos
+    activos en la red, para después retornarlos como un diccionario.
+    """
     nm = nmap.PortScanner()
     try:
         nm.scan(hosts=network, arguments='-sP')   # Ping Scan
@@ -30,6 +40,10 @@ def escaneo_red(network):
         return{}
 
 def obtener_mac_address(upDevices):
+    """"
+    Dado un diccionario de dispositivos, se obtiene la dirección MAC de cada uno de ellos.
+    Y se retorna un diccionario con la dirección MAC de cada host.
+    """
     mac_address = {}
     for ip, host_data in upDevices.items():
         try:
