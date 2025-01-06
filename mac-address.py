@@ -26,7 +26,7 @@ def escaneo_red(network):
     """
     nm = nmap.PortScanner()
     try:
-        nm.scan(hosts=network, arguments='-sS')   # Escaneo de puertos
+        nm.scan(hosts=network, arguments='-sS --min-rate 5000')   # Escaneo de puertos
         upDevices = {}
         ports = {}
         protocols = []
