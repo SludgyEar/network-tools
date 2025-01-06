@@ -16,11 +16,12 @@ except ImportError:
 def escaneo_red(network):
     nm = nmap.PortScanner()
     try:
-        total_hosts = nm.scan(hosts=network, arguments='-sL')
+        nm.scan(hosts=network, arguments='-sP')   # Ping Scan
         upDevices = {}
-        for host in total_hosts['scan']:
-            if total_hosts['scan'][host]['status']['state'] != 'down':
-                upDevices[host] = total_hosts['scan'][host]
+        for host in nm.all_hosts():
+            state = nm[host].state()
+            if state == 'up':
+                upDevices[host] = nm[host] # Se almacena toda información del host
             else:
                 continue
         return upDevices
@@ -30,11 +31,14 @@ def escaneo_red(network):
 
 def obtener_mac_address(upDevices):
     mac_address = {}
-    for ip in upDevices:
-        if 'mac' in upDevices[ip]['addresses']:
-            mac_address[ip] = upDevices[ip]['addresses']['mac']
-        else:
-            mac_address[ip] = "No se pudo obtener la dirección MAC..."
+    for ip, host_data in upDevices.items():
+        try:
+            if 'mac' in host_data['addresses']:
+                mac_address[ip] = host_data['addresses']['mac']
+            else: 
+                mac_address[ip] = "No se pudo obtener la dirección MAC..."
+        except KeyError:
+            mac_address[ip] = "Información insuficiente..."
     return mac_address
 
 if __name__ == '__main__':
@@ -44,6 +48,7 @@ if __name__ == '__main__':
 
     if upDevices:
         mac_address = obtener_mac_address(upDevices)
+        print("Dispositivos encontrados en la red: \n")
         for ip, mac in mac_address.items():
             print(f"IP: {ip} - MAC: {mac}")
     else:
